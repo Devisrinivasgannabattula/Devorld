@@ -1,0 +1,7 @@
+package com.devorld.security;
+import org.springframework.context.annotation.*; import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity; import org.springframework.security.config.annotation.web.builders.HttpSecurity; import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder; import org.springframework.security.crypto.password.PasswordEncoder; import org.springframework.security.web.SecurityFilterChain; import org.springframework.web.cors.CorsConfiguration; import org.springframework.beans.factory.annotation.Value; import java.util.List;
+@Configuration @EnableMethodSecurity public class SecurityConfig {
+ @Value("${app.cors.allowed-origin}") String origin;
+ @Bean SecurityFilterChain filterChain(HttpSecurity http)throws Exception {return http.csrf(c->c.disable()).cors(c->c.configurationSource(req->{CorsConfiguration x=new CorsConfiguration();x.setAllowedOrigins(List.of(origin));x.setAllowedMethods(List.of("GET","POST","PUT","PATCH","DELETE","OPTIONS"));x.setAllowedHeaders(List.of("Authorization","Content-Type"));x.setAllowCredentials(true);return x;})).authorizeHttpRequests(a->a.requestMatchers("/api/auth/**","/api/products/**","/actuator/health").permitAll().anyRequest().authenticated()).httpBasic(h->h.disable()).formLogin(f->f.disable()).build();}
+ @Bean PasswordEncoder passwordEncoder(){return new BCryptPasswordEncoder();}
+}
